@@ -3,7 +3,7 @@ include("gcdx_.jl")
 
 function diaphant_solve( a :: Type, b :: Type, c :: Type )  where Type
 
-    if rem(c,gcd(a,b))!=zero(Type) return nothing end
+    if rem(c,gcd_(a,b))!=zero(Type) return nothing end
 
     r, u, v = gcdx_( a, b)
 
