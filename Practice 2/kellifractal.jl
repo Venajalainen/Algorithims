@@ -13,7 +13,7 @@ function kelli()
 
     for x in 1:dim
         for y in 1:dim
-            z :: Complex{Float64} = (x-dim/4)/dim + (y-dim/4)*im/dim
+            z :: Complex{Float64} = (x-dim/2)/dim + (y-dim/2)*im/dim
             res :: Complex{Float64} = newton(z->(z^3-1)/(3*z^2), z,30)
             dist = [abs(res-root) for root in roots]
             data[y,x] = indexof( dist,min(dist...))

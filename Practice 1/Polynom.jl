@@ -1,4 +1,7 @@
-import Base: +,-, display,zero,one,mod
+import Base: +,-,*, display
+import Base: zero,one, iszero
+import Base: mod, rem, div
+import Base: getindex, length, abs
 
 mutable struct Polynom{T}
 
@@ -7,7 +10,7 @@ mutable struct Polynom{T}
     Polynom{T}( a :: Vector{T}) where T = new{T}(a)
     Polynom{T}( a :: T) where T = new{T}([a])
     Polynom{T}() where T = new{T}([zero(T)])
-    Polynom{T}(a :: Vector) where T = new{T}([T(x) for x in a])
+    Polynom{T}(a :: NTuple{N,T}) where {N,T} = new{T}([a...])
 
 end
 
@@ -17,54 +20,95 @@ function +(p1 :: Polynom{T}, p2 :: Polynom{T}) where T
     new_coeffs :: Vector{T} = zeros(T,size)
 
     for i in eachindex(new_coeffs)
-        i<=length(p1.coeffs) && (new_coeffs[i]+=p1.coeffs[i])
-        i<=length(p2.coeffs) && (new_coeffs[i]+=p2.coeffs[i])
+        i<=length(p1.coeffs) && (new_coeffs[i]+=p1[i])
+        i<=length(p2.coeffs) && (new_coeffs[i]+=p2[i])
     end
 
     return Polynom{T}(new_coeffs)
 
 end
 
-+(p :: Polynom{T}, x :: Any) where T = p+Polynom{T}(T(x))
++(p :: Polynom{T}, x :: T) where T = p+Polynom{T}(x)
 
-function -(p1 :: Polynom{T}, p2 :: Polynom{T}) :: Nothing where T
+function *(a :: T, p :: Polynom{T}) where T
+    new_coeffs :: Vector{T} = copy(p.coeffs);
+    @. new_coeffs*=a
+    return Polynom{T}(new_coeffs)
+end
+
+
+function -(p1 :: Polynom{T}, p2 :: Polynom{T})  where T
 
     size :: Int = max(length(p1.coeffs), length(p2.coeffs))
     new_coeffs :: Vector{T} = zeros(T,size)
 
     for i in eachindex(new_coeffs)
-        i<=length(p1.coeffs) && (new_coeffs[i]+=p1.coeffs[i])
-        i<=length(p2.coeffs) && (new_coeffs[i]-=p2.coeffs[i])
+        i<=length(p1.coeffs) && (new_coeffs[i]+=p1[i])
+        i<=length(p2.coeffs) && (new_coeffs[i]-=p2[i])
     end
 
     return Polynom{T}(new_coeffs)
 
 end
 
--(p1 :: Polynom{T}, x :: Any) where T = p1-Polynom{T}(T(x))
+-(p1 :: Polynom{T}, x :: T) where T = p1-Polynom{T}(x)
 
 function display( p :: Polynom{T}) where T
     for i in eachindex(p.coeffs)
-        print("t^",i-1,raw"    ")
+        print("t^",length(p)-i,raw"    ")
     end
     println()
     for i in eachindex(p.coeffs)
-        print(p.coeffs[i]); print(raw"    ")
+        print(p[i]); print(raw"    ")
     end
 end
 
-zero(:: Polynom{T}) where  T = Polynom{T}()
-one(:: Polynom{T}) where T = Polynom{T}(one(T))
+zero(:: Type{Polynom{T}}) where  T = Polynom{T}()
+one(:: Type{Polynom{T}}) where T = Polynom{T}(one(T))
+abs( p :: Polynom) = p
 
-function mod(p :: Polynom{T}, x :: NTuple{M,T}) where {M,T}
+iszero(p :: Polynom{T}) where T = all([x==zero(T) for x in p.coeffs])
 
-    for i in 1:(lastindex(p.coeffs)-M+1)
-        k = p.coeffs[i]/x[1]
-        for j in 1:M
-            p.coeffs[i+j-1]-=k*x[j]
+function mod(p :: Polynom{T}, x :: Union{Polynom{T},NTuple{M,T}}) where {M,T}
+
+    new_coeffs :: Vector{T} = copy(p.coeffs)
+
+    length(p)<length(x) && return Polynom{T}(new_coeffs)
+
+    for i in 1:(length(p) - length(x) + 1)
+        k = new_coeffs[i]/x[1]
+        for j in 1:length(x)
+            new_coeffs[i+j-1] = new_coeffs[i+j-1] - k*x[j]
         end
     end
 
-    return p
+    return Polynom{T}(new_coeffs)
 
 end
+
+rem( p :: Polynom{T}, x :: Union{Polynom{T},NTuple{M,T}}) where {M,T} = mod(p,x)
+
+function div(p :: Polynom{T}, x :: Union{Polynom{T},NTuple{M,T}}) where {M,T}
+
+    p_coeffs :: Vector{T} = copy(p.coeffs)
+    new_coeffs :: Vector{T} = Vector{T}()
+
+    length(p)<length(x) && return Polynom{T}(new_coeffs)
+
+    for i in 1:(length(p) - length(x) + 1)
+
+        push!(new_coeffs,p_coeffs[i]/x[1])
+        
+        for j in 1:length(x)
+            p_coeffs[i+j-1] = p_coeffs[i+j-1] - new_coeffs[i]*x[j]
+        end
+    end
+
+    return Polynom{T}(new_coeffs)
+
+end
+
+getindex(p :: Polynom, index :: Int) = p.coeffs[index]
+
+length(p :: Polynom) = length(p.coeffs)
+
