@@ -1,9 +1,9 @@
 include("gcd_.jl")
 include("gcdx_.jl")
 
-function invmod_( a :: Type, M :: Type) where Type
+function invmod_( a :: T, M :: T) where T
 
-    if gcd_(a,M)!=one(Type) return nothing end
+    if gcd_(a,M)!=one(T) return 0 end
 
     r, u ,v = gcdx_( a, M)
 

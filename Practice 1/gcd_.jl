@@ -1,4 +1,4 @@
-function gcd_( a :: Type , b :: Type ) where Type
+function gcd_( a :: T , b :: T ) where T
 
     while !iszero(b)
 

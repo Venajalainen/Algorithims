@@ -69,6 +69,19 @@ abs( p :: Polynom) = p
 
 iszero(p :: Polynom{T}) where T = all([x==zero(T) for x in p.coeffs])
 
+function *(a :: T, p :: Polynom{T}) where T
+    new_coeffs :: Vector{T} = copy(p.coeffs)
+
+    for i in eachindex(new_coeffs)
+        new_ceoffs *= a
+    end
+
+    return Polynom{T}(new_coeffs)
+end
+
+function *(p1 :: Polynom{T}, p2 :: Polynom{T}) where t
+end
+
 function mod(p :: Polynom{T}, x :: Union{Polynom{T},NTuple{M,T}}) where {M,T}
 
     new_coeffs :: Vector{T} = copy(p.coeffs)
@@ -87,6 +100,17 @@ function mod(p :: Polynom{T}, x :: Union{Polynom{T},NTuple{M,T}}) where {M,T}
 end
 
 rem( p :: Polynom{T}, x :: Union{Polynom{T},NTuple{M,T}}) where {M,T} = mod(p,x)
+
+function (p :: Polynom{T})(x :: T) where T
+    res :: T = p.coeffs[1]
+
+    for i in 2:length(p)
+        res = res*x+p.coeffs[i]
+    end
+
+    return res
+
+end
 
 function div(p :: Polynom{T}, x :: Union{Polynom{T},NTuple{M,T}}) where {M,T}
 
