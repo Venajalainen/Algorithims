@@ -1,4 +1,5 @@
 function aproxf( f :: Function, a :: T, b :: T, ε :: T) where T <: Float64
+    
     @assert a<b
     @assert f(a)*f(b)<0
 

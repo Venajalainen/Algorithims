@@ -1,17 +1,18 @@
 import Base: one
 
-function fastpow( value :: T, power :: Int) where T
+function fastpow( a :: T, power :: Int) where T
 
-    p :: T, t :: T = copy(value), one(T)
+    p :: T, t :: T, k :: Int = copy(value), one(T), power
 
-    while !iszero(power)
+    #ИНВ: a^power = p * t ^ k
+    while !iszero(k)
 
-        if iseven(power)
+        if iseven(k)
             p*= p
-            power÷=2
+            k÷=2
         else
             t*=p
-            power-=1
+            k-=1
         end
 
     end

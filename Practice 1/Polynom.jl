@@ -79,7 +79,27 @@ function *(a :: T, p :: Polynom{T}) where T
     return Polynom{T}(new_coeffs)
 end
 
-function *(p1 :: Polynom{T}, p2 :: Polynom{T}) where t
+function *(p1 :: Polynom{T}, p2 :: Polynom{T}) where T
+
+    new_coeffs :: Vector{T} = zeros(T, length(p1) + length(p2) - 1)
+    
+
+    if length(p2)>length(p1) p1_coeffs = copy(p2.coeffs); p2_coeffs = copy(p1.coeffs)
+    else p1_coeffs = copy(p1.coeffs); p2_coeffs = copy(p2.coeffs)
+    end
+
+    println(p1_coeffs)
+    println(p2_coeffs)
+
+    for i in 1:length(p1_coeffs)
+        for j in 1:length(p2_coeffs)
+            new_coeffs[i+j-1] += p1_coeffs[i]*p2_coeffs[j]
+        end
+    end
+
+    return Polynom{T}(new_coeffs)
+
+
 end
 
 function mod(p :: Polynom{T}, x :: Union{Polynom{T},NTuple{M,T}}) where {M,T}

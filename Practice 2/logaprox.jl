@@ -5,7 +5,8 @@ function aproxlog( a :: Float64, x :: Float64, ε :: Float64)
     if a<1 a=1.0/a end
 
     y :: Float64, z :: Float64, t :: Float64 = 0.0, x, 1.0
-    
+
+    #ИНВ: x = a^y * z^t
     while z > a || z < 1/a || abs(t)>=ε
 
         if z>=a
