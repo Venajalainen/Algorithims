@@ -1,8 +1,9 @@
 function aproxf( f :: Function, a :: T, b :: T, ε :: T) where T <: Float64
-    
+
     @assert a<b
     @assert f(a)*f(b)<0
 
+    #ИНВ: f(a)*f(b)<0
     while b-a > ε
 
         t :: T = (a+b)/2
