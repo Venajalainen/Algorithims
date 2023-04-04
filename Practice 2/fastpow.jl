@@ -2,7 +2,7 @@ import Base: one
 
 function fastpow( a :: T, power :: Int) where T
 
-    p :: T, t :: T, k :: Int = copy(value), one(T), power
+    p :: T, t :: T, k :: Int = copy(a), one(T), power
 
     #ИНВ: a^power = p * t ^ k
     while !iszero(k)
