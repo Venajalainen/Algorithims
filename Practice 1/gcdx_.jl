@@ -30,7 +30,7 @@ function gcdx_( a :: T, b :: T ) where T
     while !iszero(b)
         
         k  = div(a,b)
-        a, b = b, a-k*b
+        a, b = b, rem(a,b)
         u′, v′, u, v = u-k*u′, v-k*v′, u′, v′
 
     end

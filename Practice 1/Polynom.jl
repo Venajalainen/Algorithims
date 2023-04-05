@@ -2,6 +2,7 @@ import Base: +,-,*, display
 import Base: zero,one, iszero
 import Base: mod, rem, div
 import Base: getindex, length, abs
+include("gcd_.jl")
 
 mutable struct Polynom{T}
 
@@ -16,8 +17,14 @@ end
 
 function +(p1 :: Polynom{T}, p2 :: Polynom{T}) where T
 
-    size :: Int = max(length(p1.coeffs), length(p2.coeffs))
+    size :: Int = max(length(p1), length(p2))
     new_coeffs :: Vector{T} = zeros(T,size)
+
+    if length(p1)>length(p2)
+        new_coeffs :: Vector{T} = copy(p1.coeffs)
+    else
+        new_coeffs :: Vector{T} = copy(p2.coeffs)
+    end
 
     for i in eachindex(new_coeffs)
         i<=length(p1.coeffs) && (new_coeffs[i]+=p1[i])
@@ -39,8 +46,12 @@ end
 
 function -(p1 :: Polynom{T}, p2 :: Polynom{T})  where T
 
-    size :: Int = max(length(p1.coeffs), length(p2.coeffs))
-    new_coeffs :: Vector{T} = zeros(T,size)
+    size :: Int = max(length(p1), length(p2))
+    if length(p1)>length(p2)
+        new_coeffs :: Vector{T} = copy(p1.coeffs)
+    else
+        new_coeffs :: Vector{T} = copy(p2.coeffs)
+    end
 
     for i in eachindex(new_coeffs)
         i<=length(p1.coeffs) && (new_coeffs[i]+=p1[i])
@@ -88,9 +99,6 @@ function *(p1 :: Polynom{T}, p2 :: Polynom{T}) where T
     else p1_coeffs = copy(p1.coeffs); p2_coeffs = copy(p2.coeffs)
     end
 
-    println(p1_coeffs)
-    println(p2_coeffs)
-
     for i in 1:length(p1_coeffs)
         for j in 1:length(p2_coeffs)
             new_coeffs[i+j-1] += p1_coeffs[i]*p2_coeffs[j]
@@ -104,16 +112,18 @@ end
 
 function mod(p :: Polynom{T}, x :: Union{Polynom{T},NTuple{M,T}}) where {M,T}
 
-    new_coeffs :: Vector{T} = copy(p.coeffs)
+    p_coeffs :: Vector{T} = copy(p.coeffs)
 
     length(p)<length(x) && return Polynom{T}(new_coeffs)
 
     for i in 1:(length(p) - length(x) + 1)
-        k = new_coeffs[i]/x[1]
+        k = p_coeffs[i]/x[1]
         for j in 1:length(x)
-            new_coeffs[i+j-1] = new_coeffs[i+j-1] - k*x[j]
+            p_coeffs[i+j-1] = p_coeffs[i+j-1] - k*x[j]
         end
     end
+
+    new_coeffs = p_coeffs[length(p) - length(x) + 2 : length(p)]
 
     return Polynom{T}(new_coeffs)
 

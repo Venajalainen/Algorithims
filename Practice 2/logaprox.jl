@@ -1,5 +1,4 @@
 function aproxlog( a :: Float64, x :: Float64, ε :: Float64)
-    #a^y*z^t=x
 
     less :: Bool = a<1
     if a<1 a=1.0/a end
