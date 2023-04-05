@@ -17,18 +17,16 @@ end
 
 function +(p1 :: Polynom{T}, p2 :: Polynom{T}) where T
 
-    size :: Int = max(length(p1), length(p2))
-    new_coeffs :: Vector{T} = zeros(T,size)
-
     if length(p1)>length(p2)
-        new_coeffs :: Vector{T} = copy(p1.coeffs)
+        new_coeffs = copy(p1.coeffs)
+        for i in 1:length(p2)
+            new_coeffs[i+length(p1)-length(p2)]+=p2[i]
+        end
     else
-        new_coeffs :: Vector{T} = copy(p2.coeffs)
-    end
-
-    for i in eachindex(new_coeffs)
-        i<=length(p1.coeffs) && (new_coeffs[i]+=p1[i])
-        i<=length(p2.coeffs) && (new_coeffs[i]+=p2[i])
+        new_coeffs = copy(p2.coeffs)
+        for i in 1:length(p1)
+            new_coeffs[i+length(p2)-length(p1)]+=p1[i]
+        end
     end
 
     return Polynom{T}(new_coeffs)
@@ -46,16 +44,16 @@ end
 
 function -(p1 :: Polynom{T}, p2 :: Polynom{T})  where T
 
-    size :: Int = max(length(p1), length(p2))
     if length(p1)>length(p2)
-        new_coeffs :: Vector{T} = copy(p1.coeffs)
+        new_coeffs = copy(p1.coeffs)
+        for i in 1:length(p2)
+            new_coeffs[i+length(p1)-length(p2)]-=p2[i]
+        end
     else
-        new_coeffs :: Vector{T} = copy(p2.coeffs)
-    end
-
-    for i in eachindex(new_coeffs)
-        i<=length(p1.coeffs) && (new_coeffs[i]+=p1[i])
-        i<=length(p2.coeffs) && (new_coeffs[i]-=p2[i])
+        new_coeffs = [-x for x in p2.coeffs]
+        for i in 1:length(p1)
+            new_coeffs[i+length(p2)-length(p1)] += p1[i]
+        end
     end
 
     return Polynom{T}(new_coeffs)

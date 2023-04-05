@@ -1,4 +1,5 @@
 function silt( x :: Integer ) :: Vector{Integer}
+
     prime_numbers = trues(x)
 
     for i in 2:x
