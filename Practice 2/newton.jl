@@ -1,4 +1,7 @@
-function newton( ψ :: Function , xₖ :: T, maxiter :: Int = 15, ε :: Float64 = 0.0001) where T
+import LinearAlgebra
+import Base: abs
+
+function newton( ψ :: Function , xₖ :: T; maxiter :: Int = 15, ε :: Float64 = 0.0001) where T
 
     xₖ₊₁ :: T, k :: Int = xₖ, 0
 
@@ -21,23 +24,39 @@ end
 
 include("../Practice 1/Polynom.jl")
 
-p = Polynom{Float64}([1.,0,-1.])
+function test()
 
-newton(-2.) do x
+    p = Polynom{Float64}([1.,0,-1.])
 
-    res, der = p[1], p[1]*(length(p)-1)
-    for i in 2:length(p)
-        res = res*x + p[i]
-        if length(p)>1 der = der*x + p[i]*(length(p)-i) end
+    res = newton(-2.) do x
+
+        res, der = 0, 0
+        for i in 1:length(p)
+            res = res*x + p[i]
+            der = der*x + p[i]*max(0,length(p) - i)
+        end
+
+        return res*x/der
     end
 
-    println(der," ", 2*x)
+    println(res)
 
-    return res/der
+    res = newton(0.5) do x
+        return (cos(x) - x)/(-sin(x)-1)
+    end
+
+    println(res)
+
+    res = newton([1.,0]) do (x,y)
+        Jacobi = [2x     2y  
+                  3y*x^2 x^3]
+        return inv(Jacobi) * [x^2+y^2-2,y*x^3-1]
+        
+    end
+
+    println(res)
 end
 
-newton(-2.) do x
-
-    return (x^2-1)/(2x)
-
+function abs( x :: Vector{T}) where T
+    return max(abs.(x)...)
 end
