@@ -26,9 +26,9 @@ include("../Practice 1/Polynom.jl")
 
 function test()
 
-    p = Polynom{Float64}([1.,0,-1.])
+    p = Polynom{Float64}([-3.,8.,-2.,-2.])
 
-    res = newton(-2.) do x
+    res = newton(2.) do x
 
         res, der = 0, 0
         for i in 1:length(p)
@@ -48,7 +48,7 @@ function test()
     println(res)
 
     res = newton([1.,0]) do (x,y)
-        Jacobi = [2x     2y  
+        Jacobi = [2x     2y 
                   3y*x^2 x^3]
         return inv(Jacobi) * [x^2+y^2-2,y*x^3-1]
         

@@ -1,9 +1,8 @@
 include("newton.jl")
-using GLMakie
 using Plots
 using Images
 
-function build(;x :: Int = 1000, y :: Int = 1000, maxiter :: Int = 15, ε :: Float64= 0.3)
+function build(;x :: Int = 1000, y :: Int = 1000, maxiter :: Int = 15, eps :: Float64= 0.3, k :: Float64 = 1.)
 
     colors :: NTuple = (RGB(1,0,0),RGB(0,1,0),RGB(0,0,1))
     _x ::Float64, _y :: Float64 = Float64(x), Float64(y)
@@ -21,7 +20,7 @@ function build(;x :: Int = 1000, y :: Int = 1000, maxiter :: Int = 15, ε :: Flo
 
         difs = [abs(root-res) for root in roots]
 
-        #min(difs...)>=ε && return RGB(0,0,0)
+        min(difs...)>=eps && return RGB(0,0,0)
 
         return colors[findfirst(difs) do x
             return x==min(difs...)
@@ -34,9 +33,9 @@ function build(;x :: Int = 1000, y :: Int = 1000, maxiter :: Int = 15, ε :: Flo
 
     for i in 1:x
         for j in 1:y
-            image[j,i] = kelli((i-x/2)/x,(j-y/2)/y)
+            image[j,i] = kelli(k*(i-x/2)/x,k*(j-y/2)/y)
         end
     end
 
-    Images.save("kelli.png", image)
+    Images.save("kelli1.png", image)
 end
