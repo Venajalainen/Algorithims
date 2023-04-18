@@ -1,34 +1,53 @@
-import Base: display
+arr = [ [ [ [] ,10 ,8 ] ,[ [], 11, 7 ] ,[[],[],30], 6 ] ,[ [], [], 5 ],[[],[],20], 4 ]
+#arr = [[[[],[],6], [], 2], [[[],[],4], [[],[],5], 3],1]
+function convert!( arr :: Vector, tree :: Dict{Int,Vector})
+    isempty(arr) && return
 
-struct ArrayTree
-    n :: Int
-    size :: Int
-    #arr :: Vector
+    list = []
 
-    ArrayTree(n :: Int) = new(n,0,[])
-    function ArrayTree(n :: Int, x :: Vector) 
-        size = length(x)
-        n = n
-        function recursive(n :: Int, x :: Vector)
-            println(x)
-            if length(x) > n
-                return [[recursive(n,x[i*n : i*(n+1)]) for i in 1:n-1],x[1]]
-            else
-                return [x]
-            end
+    for subarr in arr[1:end-1]
+        if isempty(subarr)
+            push!(list,nothing)
+            continue
         end
-
-        arr = recursive(n,x)
+        if typeof(subarr) <: Int
+            push!(list,subarr)
+            continue
+        end
+        push!(list,subarr[end])
+        convert!(subarr,tree)
     end
 
-    #display(tree :: ArrayTree )  = display(tree.arr)
-    
+    tree[arr[end]] = list
+
+    return tree
 end
 
-ArrayTree(2,[3,4,5,6])
-# 1 2 3 4
-# 3 4 5 6
+function convert!( tree :: Dict{Int,Vector}, root :: Union{Int,Nothing}) ::Union{Node,Nothing}
 
-# 1 2 3 4 5 6 7 8
-# 3 5 6 7 8 9 9 9
-# Binary Tree
+    isnothing(root) && return nothing
+    !(root in keys(tree)) && return Node(root,[])
+    node = Node(root,[])
+
+    for sub_root in tree[root]
+        push!(node.children, convert!(tree, sub_root))
+    end
+
+    return node
+end
+
+struct Node
+    index :: Int
+    children :: Vector{Union{Nothing,Node}}
+end
+
+#----------------------------------------------------------------------------------------------------------#
+
+tree = Dict{Int,Vector}();
+tree = convert!(arr, tree)
+
+display(tree)
+
+node = convert!(tree, 4)
+node.index
+node.children
