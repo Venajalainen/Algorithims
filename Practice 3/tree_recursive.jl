@@ -15,10 +15,10 @@ function leafs( arr :: Union{Vector,Int})
     return s
 end
 
-function roots( arr :: Union{Vector,Int})
-    length(arr)==0 || typeof(arr) <: Int && return 0
-    s = Int(any(length(subarr)!=0 for subarr in arr[1:end-1]))
-    for subarr in arr[1:end-1]
+function nodes( arr :: Union{Vector,Int})
+    typeof(arr) <: Int && return 1
+    s = 0
+    for subarr in arr
         s += roots(subarr)
     end
     return s
@@ -31,21 +31,18 @@ function treepower( arr :: Union{Vector,Int}, root :: Bool = true)
 end
 
 function meantrail(_arr :: Union{Vector,Int})
-    function recursion(arr :: Union{Vector,Int})
-        length(arr) == 0 && begin println("OK"); return (1,0) end
-        typeof(arr)<:Int &&  return (1,1)
-        N = S = length(arr[1:end-1])
-        println(arr," ",N, " ", S)
+    function recursive(arr; depth :: Int = 0)
+        isempty(arr) && return 0,0
+        typeof(arr) <: Int && return depth,1
+        s,n = depth, 1
         for subarr in arr[1:end-1]
-            s, n = recursion(subarr)
-            S+=s
-            N+=n
+            _s, _n = recursive(subarr; depth = depth+1)
+            s+=_s
+            n+=_n
         end
-        return S,N
+        return s,n
     end
-    S,N = recursion(_arr)
-    println(S," ",N)
-    return S/N
+    paths,verts = recursive(_arr)
+    println(paths," ", verts)
+    return paths/verts
 end
-
-  
