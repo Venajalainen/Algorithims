@@ -14,6 +14,7 @@ end
 
 function euler(x :: Float64)
     S :: Float64 = 1
+    negative :: Bool = x<0
     if abs(x)>1
         S = fastpow(euler(1.), Int(trunc(abs(x))))
         x -= trunc(x)
@@ -28,7 +29,7 @@ function euler(x :: Float64)
         k+=1
     end
     
-    x<0 && return 1/(S*S1)
+    negative && return 1/(S*S1)
     return S*S1
 
 end

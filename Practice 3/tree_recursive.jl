@@ -19,7 +19,7 @@ function nodes( arr :: Union{Vector,Int})
     typeof(arr) <: Int && return 1
     s = 0
     for subarr in arr
-        s += roots(subarr)
+        s += nodes(subarr)
     end
     return s
 end
@@ -43,6 +43,6 @@ function meantrail(_arr :: Union{Vector,Int})
         return s,n
     end
     paths,verts = recursive(_arr)
-    println(paths," ", verts)
+    #println(paths," ", verts)
     return paths/verts
 end

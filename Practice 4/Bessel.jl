@@ -17,7 +17,7 @@ end
 function build(border :: Int)
     x = range(0,border, length = 1000)
     ys = []
-    for i in 0:10
+    for i in 0:2
         list = []
         for j in x
             push!(list, bessel(BigFloat(j),i))
