@@ -1,14 +1,11 @@
-function _InsertionSort(arr :: AbstractArray{T}) where T
+@inline function _InsertionSort(arr :: AbstractArray{T}) where T
     sorted :: Int = 1
     for i in 2:length(arr)
-        k :: Int = i
-        for j in 0:sorted-1
-            if arr[sorted - j]>arr[k]
-                arr[sorted - j], arr[k] = arr[k], arr[sorted-j]
-            end
-            k = sorted - j
+        j :: Int = i
+        @inbounds while j>1 && arr[j-1]>arr[j]
+        @inbounds     arr[j], arr[j-1] = arr[j-1], arr[j]
+            j-=1
         end
-        sorted+=1
     end
     return arr
 end
