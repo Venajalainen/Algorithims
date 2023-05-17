@@ -19,10 +19,14 @@
     return lesser, greater+1
 end
 
-function _QuickSort(_arr :: AbstractArray{T}) where T
-    if length(_arr) > 1
-        border1, border2 = _partitition(_arr)
-        _QuickSort(@view(_arr[begin:border1]))
-        _QuickSort(@view(_arr[border2:end]))
+function _QuickSort(arr :: AbstractArray{T}) where T
+    @inline function _inQuickSort(_arr)
+        if length(_arr) > 1
+            border1, border2 = _partitition(_arr)
+            _inQuickSort(@view(_arr[begin:border1]))
+            _inQuickSort(@view(_arr[border2:end]))
+        end
     end
+    _inQuickSort(@view(arr[begin:end]))
+    return arr
 end

@@ -37,7 +37,7 @@ function _median(arr :: AbstractArray)
     N :: Int = length(arr)
     index :: Int = N÷2 + mod(N,2)
     _arr = copy(arr)
-    median :: Int = _order!(_arr,index)
+    median :: Float64 = _order!(_arr,index)
     mod(N,2)==1 && return median
     return (median+_arr[index+1])/2
 end
