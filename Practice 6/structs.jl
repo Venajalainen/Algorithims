@@ -1,4 +1,4 @@
-import Base: +,-,*,cos,sin,angle,sign
+import Base: +,-,*,cos,sin,angle,sign, display
 import LinearAlgebra: norm, dot
 include("../Practice 4/determinant.jl")
 include("../Practice 4/rang.jl")
@@ -18,7 +18,7 @@ dot(a :: Vector2D{T}, b :: Vector2D{T}) where T = a.x*b.x+a.y*b.y
 xdot(a :: Vector2D{T}, b :: Vector2D{T}) where T = a.x*b.y-a.y*b.x
 angle(a :: Vector2D{T}, b :: Vector2D{T}) where T = atan(sin(a,b)/cos(a,b))
 sign(a :: Vector2D{T}, b :: Vector2D{T}) where T = sign(sin(a,b))
-
+display(a :: Vector2D{T}) where T = display((a.x,a.y))
 
 struct Segment2D{T <: Real}
     p1 :: Vector2D{T}
@@ -94,5 +94,18 @@ function ispuff(poly :: Polygon{T}) where T
     end
     return puff
 end
+
+function Jarvis(points :: AbstractVector{Vector2D{T}}) where T<:Real
+    pivot :: Vector2D = points[1];
+    for point in points
+        if point.x>pivot.x && point.y<pivot.y
+            pivot = point
+        end
+    end
+end
 #points = [Vector2D{Real}(1,3),Vector2D{Real}(3,2),Vector2D{Real}(-1,-1)]
 #points = [Vector2D{Real}(1,1),Vector2D{Real}(6,6),Vector2D{Real}(6,1), Vector2D{Real}(5,4)]
+#arr = [Vector2D{Real}(rand(2)...) for i in 1:20]
+#for point in arr
+#display(point)
+#end
