@@ -38,7 +38,7 @@ function sameside(f :: Function, p1 :: Vector2D{T}, p2 :: Vector2D{T}) :: Bool w
     return sign(f(p1.x,p1.y)) == sign(f(p2.x,p2.y)) || sign(f(p1.x,p1.y))*sign(f(p2.x,p2.y))==0
 end
 
-function intersection(line1 :: Segment2D{T}, line2 :: Segment2D{T}) where T<: Vector2D
+function intersection(line1 :: Segment2D{T}, line2 :: Segment2D{T}) where T<: Real
     𝚫x1 :: Float64,𝚫y1 :: Float64 = line1.p1.x-line1.p2.x, line1.p1.y-line1.p2.y
     𝚫x2 :: Float64,𝚫y2 :: Float64 = line2.p1.x-line2.p2.x, line2.p1.y-line2.p2.y
     M = [𝚫y1 -𝚫x1
@@ -71,10 +71,28 @@ function insidepolygon(p :: Vector2D{T}, poly :: Polygon{T}) where T<:Real
     sum_angle :: T = zero(T)
     @assert length(poly.sides)>2
     for side in poly.sides
-        sum_angle+=angle(side.p2-p,side.p1-p)
+        a = angle(side.p2-p,side.p1-p)
+        (p == side.p2 || p == side.p1) && return true
+        if a<0 a+=pi end
+        sum_angle+=a
     end
-    println(sum_angle)
-    return sum_angle>pi
+    return sum_angle>=pi
 end
 
+function ispuff(poly :: Polygon{T}) where T
+    puff :: Bool = true
+    for i in 1:length(poly.sides)
+        c :: Int = 0
+        for j in i+1:length(poly.sides)
+            if intersection(poly.sides[i],poly.sides[j]) !== nothing
+                c+=1
+            end
+        end
+        if c>2
+            return false
+        end
+    end
+    return puff
+end
 #points = [Vector2D{Real}(1,3),Vector2D{Real}(3,2),Vector2D{Real}(-1,-1)]
+#points = [Vector2D{Real}(1,1),Vector2D{Real}(6,6),Vector2D{Real}(6,1), Vector2D{Real}(5,4)]
