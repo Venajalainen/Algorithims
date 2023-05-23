@@ -27,6 +27,12 @@ struct Segment2D{T <: Real}
     Segment2D{T}(p1 :: Vector2D{T}, p2 :: Vector2D{T}) where T = new{T}(p1,p2)
 end
 
+function angle(a :: Segment2D{T}, b :: Segment2D{T}) where T
+    ang = atan(sin(a.p1-a.p2,b.p1-b.p2)/cos(a.p1-a.p2,b.p1-b.p2))
+    ang>0 && return ang
+    return pi+ang
+end
+
 to_origin(line :: Segment2D{T}) where T<:Real = line.p2-line.p1
 
 function sameside(line :: Segment2D{Vector2D{T}}, p1 :: Vector2D{T}, p2 :: Vector2D{T}) :: Bool where T
@@ -67,6 +73,10 @@ struct Polygon{T<:Real}
     end
 end
 
+function push(p :: Polygon{T}, side :: Segment2D{T}) where T<:Real
+    push!(p.sides,side)
+end
+
 function insidepolygon(p :: Vector2D{T}, poly :: Polygon{T}) where T<:Real
     sum_angle :: T = zero(T)
     @assert length(poly.sides)>2
@@ -80,28 +90,22 @@ function insidepolygon(p :: Vector2D{T}, poly :: Polygon{T}) where T<:Real
 end
 
 function ispuff(poly :: Polygon{T}) where T
-    puff :: Bool = true
-    for i in 1:length(poly.sides)
+    for i in 1:length(poly.sides)-1
         c :: Int = 0
-        for j in i+1:length(poly.sides)
-            if intersection(poly.sides[i],poly.sides[j]) !== nothing
-                c+=1
-            end
-        end
-        if c>2
-            return false
-        end
     end
     return puff
 end
 
-function Jarvis(points :: AbstractVector{Vector2D{T}}) where T<:Real
+function Jarvis(points :: AbstractVector{Vector2D{T}}) :: Polygon{T} where T<:Real
     pivot :: Vector2D = points[1];
     for point in points
         if point.x>pivot.x && point.y<pivot.y
             pivot = point
         end
     end
+    polygon = Polygon{Real}([])
+    
+    return polygon
 end
 #points = [Vector2D{Real}(1,3),Vector2D{Real}(3,2),Vector2D{Real}(-1,-1)]
 #points = [Vector2D{Real}(1,1),Vector2D{Real}(6,6),Vector2D{Real}(6,1), Vector2D{Real}(5,4)]
