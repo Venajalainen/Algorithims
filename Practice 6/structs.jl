@@ -19,6 +19,7 @@ xdot(a :: Vector2D{T}, b :: Vector2D{T}) where T = a.x*b.y-a.y*b.x
 angle(a :: Vector2D{T}, b :: Vector2D{T}) where T = atan(sin(a,b)/cos(a,b))
 sign(a :: Vector2D{T}, b :: Vector2D{T}) where T = sign(sin(a,b))
 display(a :: Vector2D{T}) where T = display((a.x,a.y))
+xdot(a :: Vector2D{T}, b :: Vector2D{T}, c :: Vector2D{T}) where T = (b.x-a.x)*(c.y-b.y)-(b.y-a.y)*(c.x-b.x)
 
 struct Segment2D{T <: Real}
     p1 :: Vector2D{T}
@@ -62,38 +63,31 @@ function intersection(line1 :: Segment2D{T}, line2 :: Segment2D{T}) where T<: Re
 end
 
 struct Polygon{T<:Real}
-    sides :: Vector{Segment2D{T}}
-    function Polygon{T}(points :: AbstractVector{Vector2D{T}}) where T<:Real
-        sides = Vector{Segment2D{T}}([])
-        for i in 1:length(points)-1
-            push!(sides,Segment2D{T}(points[i],points[i+1]))
-        end
-        push!(sides,Segment2D{T}(points[end],points[begin]))
-        return new{T}(sides)
-    end
-end
-
-function push(p :: Polygon{T}, side :: Segment2D{T}) where T<:Real
-    push!(p.sides,side)
+    points :: Vector{Vector2D{T}}
+    Polygon{T}(points :: AbstractVector{Vector2D{T}}) where T<:Real = new{T}(points)
 end
 
 function insidepolygon(p :: Vector2D{T}, poly :: Polygon{T}) where T<:Real
     sum_angle :: T = zero(T)
-    @assert length(poly.sides)>2
-    for side in poly.sides
-        a = angle(side.p2-p,side.p1-p)
-        (p == side.p2 || p == side.p1) && return true
-        if a<0 a+=pi end
+    N = length(poly.points)
+    for i in eachindex(poly.points)
+        a = angle(poly.points[i]-p,poly.points[max((i+1)%N,1)]-p)
+        (p == poly.points[i] || p == poly.points[max((i+1)%N,1)]) && return true
         sum_angle+=a
     end
-    return sum_angle>=pi
+    return abs(sum_angle)>pi
 end
 
-function ispuff(poly :: Polygon{T}) where T
+function convex(poly :: Polygon{T}) where T
     for i in 1:length(poly.sides)-1
-        c :: Int = 0
+        ang = angle(poly.sides[i],poly.sides[i+1])
+        #println(ang)
+        if ang>=pi
+            return false
+        end
     end
-    return puff
+    #println(angle(poly.sides[end],poly.sides[begin]))
+    return angle(poly.sides[end],poly.sides[begin])<=pi
 end
 
 function Jarvis(points :: AbstractVector{Vector2D{T}}) :: Polygon{T} where T<:Real

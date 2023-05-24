@@ -14,12 +14,12 @@ end
 function drawpolygon(poly :: Polygon{T}) where T<:Real
     x = []
     y = []
-    for side in poly.sides
-        push!(x,side.p1.x)
-        push!(x,side.p2.x)
-        push!(y,side.p1.y)
-        push!(y,side.p2.y)
+    for point in poly.points
+        push!(x,point.x)
+        push!(y,point.y)
     end
+    push!(x,poly.points[begin].x)
+    push!(y,poly.points[begin].y)
     r = plot!(x,y)
     return r
 end
