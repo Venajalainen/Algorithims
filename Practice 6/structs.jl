@@ -70,12 +70,14 @@ end
 function insidepolygon(p :: Vector2D{T}, poly :: Polygon{T}) where T<:Real
     sum_angle :: T = zero(T)
     N = length(poly.points)
-    for i in eachindex(poly.points)
-        a = angle(poly.points[i]-p,poly.points[max((i+1)%N,1)]-p)
-        (p == poly.points[i] || p == poly.points[max((i+1)%N,1)]) && return true
-        sum_angle+=a
+    ind = sign((poly.points[i].y-p.y)*(poly.points[i+1].x-poly.points[i].x)-(p.x-poly.points[i].x)*(poly.points[i+1].y-poly.points[i].y))
+    for i in 2:N-1
+        a = (poly.points[i].y-p.y)*(poly.points[i+1].x-poly.points[i].x)-(p.x-poly.points[i].x)*(poly.points[i+1].y-poly.points[i].y)
+        if sign(a) != ind
+            return false
+        end
     end
-    return abs(sum_angle)>pi
+    return true
 end
 
 function convex(poly :: Polygon{T}) where T
