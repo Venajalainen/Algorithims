@@ -1,4 +1,4 @@
-import Base: +,-,*,cos,sin,angle,sign, display
+import Base: +,-,*,cos,sin,angle,sign, display, acos
 import LinearAlgebra: norm, dot
 include("../Practice 4/determinant.jl")
 include("../Practice 4/rang.jl")
@@ -17,9 +17,11 @@ norm(a :: Vector2D{T}) where T = norm((a.x,a.y))
 dot(a :: Vector2D{T}, b :: Vector2D{T}) where T = a.x*b.x+a.y*b.y
 xdot(a :: Vector2D{T}, b :: Vector2D{T}) where T = a.x*b.y-a.y*b.x
 angle(a :: Vector2D{T}, b :: Vector2D{T}) where T = atan(sin(a,b)/cos(a,b))
-sign(a :: Vector2D{T}, b :: Vector2D{T}) where T = sign(sin(a,b))
+sign(a :: Vector2D{T}, b :: Vector2D{T}) where T = sign(xdot(a,b))
 display(a :: Vector2D{T}) where T = display((a.x,a.y))
-xdot(a :: Vector2D{T}, b :: Vector2D{T}, c :: Vector2D{T}) where T = (b.x-a.x)*(c.y-b.y)-(b.y-a.y)*(c.x-b.x)
+acos(a :: Vector2D{T}, b :: Vector2D{T}) where T = acos(cos(a,b))
+
+subangle(a :: Vector2D{T}, b :: Vector2D{T}, centre :: Vector2D{T}) where T = return acos(cos(a-centre,b-centre))
 
 struct Segment2D{T <: Real}
     p1 :: Vector2D{T}
@@ -28,16 +30,10 @@ struct Segment2D{T <: Real}
     Segment2D{T}(p1 :: Vector2D{T}, p2 :: Vector2D{T}) where T = new{T}(p1,p2)
 end
 
-function angle(a :: Segment2D{T}, b :: Segment2D{T}) where T
-    ang = atan(sin(a.p1-a.p2,b.p1-b.p2)/cos(a.p1-a.p2,b.p1-b.p2))
-    ang>0 && return ang
-    return pi+ang
-end
-
 to_origin(line :: Segment2D{T}) where T<:Real = line.p2-line.p1
 
 function sameside(line :: Segment2D{Vector2D{T}}, p1 :: Vector2D{T}, p2 :: Vector2D{T}) :: Bool where T
-    origin = to_origin(line)
+    origin = line.p1-line.p2
     return sign(origin,p1) == sign(origin,p2) || sign(origin,p1)*sign(origin,p2)==0
 end
 
@@ -55,7 +51,7 @@ function intersection(line1 :: Segment2D{T}, line2 :: Segment2D{T}) where T<: Re
         ]
     if det(M) == 0
         if rang(M) == rang([M B])
-            @warn("линии сопадают")
+            @warn("линии совпадают")
         end
         return nothing
     end
@@ -70,26 +66,32 @@ end
 function insidepolygon(p :: Vector2D{T}, poly :: Polygon{T}) where T<:Real
     sum_angle :: T = zero(T)
     N = length(poly.points)
-    ind = sign((poly.points[i].y-p.y)*(poly.points[i+1].x-poly.points[i].x)-(p.x-poly.points[i].x)*(poly.points[i+1].y-poly.points[i].y))
-    for i in 2:N-1
-        a = (poly.points[i].y-p.y)*(poly.points[i+1].x-poly.points[i].x)-(p.x-poly.points[i].x)*(poly.points[i+1].y-poly.points[i].y)
-        if sign(a) != ind
+    for i in 1:N
+        p1 = poly.points[max(mod(i+1,N+1),1)]
+        p2 = poly.points[i]
+        sum_angle+=sign(p1-p,p2-p)*subangle(p1, p2, p)
+    end
+    println(sum_angle*180/pi)
+    return abs(sum_angle)>pi
+end
+
+function convex(poly :: Polygon{T}) where T
+    N = length(poly.points)
+
+    p1 = poly.points[N] - poly.points[begin]
+    p2 = poly.points[2] - poly.points[begin]
+    ind = sign(p2,p1)
+
+    for i in 1:N-1
+        p1 = poly.points[i] - poly.points[i+1]
+        p2 = poly.points[max(mod(i+2,N+1),1)] - poly.points[i+1]
+        if sign(p2,p1)!=ind
+            println(poly.points[i]," ",poly.points[i+1]," ", poly.points[max(mod(i+2,N+1),1)])
+            println(sign(p2,p1))
             return false
         end
     end
     return true
-end
-
-function convex(poly :: Polygon{T}) where T
-    for i in 1:length(poly.sides)-1
-        ang = angle(poly.sides[i],poly.sides[i+1])
-        #println(ang)
-        if ang>=pi
-            return false
-        end
-    end
-    #println(angle(poly.sides[end],poly.sides[begin]))
-    return angle(poly.sides[end],poly.sides[begin])<=pi
 end
 
 function Jarvis(points :: AbstractVector{Vector2D{T}}) :: Polygon{T} where T<:Real
