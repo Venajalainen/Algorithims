@@ -87,3 +87,11 @@ end
 # testree[5] = [4,6]
 # testree[6] = [5,7]
 # testree[7] = [4,6]
+
+# testree = Dict{Int,Vector{Int}}()
+# testree[1] = [2]
+# testree[2] = [3]
+# testree[3] = [4]
+# testree[4] = [4,5]
+# testree[5] = [6]
+# testree[6] = []
