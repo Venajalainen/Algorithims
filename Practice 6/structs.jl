@@ -30,9 +30,13 @@ struct Segment2D{T <: Real}
     Segment2D{T}(p1 :: Vector2D{T}, p2 :: Vector2D{T}) where T <:Real = new{T}(p1,p2)
 end
 
+includes(line :: Segment2D{T}, p :: Vector2D{T}) where T = min(line.p1.x,line.p2.x)<=p.x<=max(line.p1.x,line.p2.x) && min(line.p1.y,line.p2.y)<=p.y<=max(line.p1.y,line.p2.y)
+
 function sameside(line :: Segment2D{T}, p1 :: Vector2D{T}, p2 :: Vector2D{T}) :: Bool where T
-    origin = line.p1-line.p2
-    return sign(origin,p1) == sign(origin,p2) || sign(origin,p1)*sign(p2,origin)==0
+    origin = line.p2-line.p1
+    dx = abs(line.p2.x-line.p1.x)
+    dy = abs(line.p2.y-line.p1.y)
+    return sign(origin,p1 - Vector2D{Real}(dx,dy)) * sign(origin,p2 -Vector2D{Real}(dx,dy))>=0
 end
 
 function sameside(f :: Function, p1 :: Vector2D{T}, p2 :: Vector2D{T}) :: Bool where T
@@ -53,7 +57,14 @@ function intersection(line1 :: Segment2D{T}, line2 :: Segment2D{T}) where T<: Re
         end
         return nothing
     end
-    return M\B
+
+    p = Vector2D{T}(M\B...)
+
+    if includes(line1,p) && includes(line2,p)
+        return p
+    end
+
+    return nothing
 end
 
 struct Polygon{T<:Real}
@@ -104,7 +115,7 @@ function Jarvis(points :: AbstractVector{Vector2D{T}}) :: Polygon{T} where T<:Re
         next = _pivot
         for point in points
             ang = acos(cos(_orientation,point-_pivot))
-            if sign(xdot(_orientation,point-_pivot))<0 ang=2pi - ang end
+            if sign(_orientation,point-_pivot)<0 ang=2pi - ang end
             if ang-minang == 0 && point.x<next.x && point.y<next.y
                 next = point
             end
@@ -134,7 +145,7 @@ function Grekhom(points :: AbstractVector{Vector2D{T}}) :: Polygon{T} where T<:R
     sorted_points = [(0.,pivot)]
     for point in [p for p in points if p!=sorted_points[begin][2]]
         ang = acos(cos(orientation,point-pivot))
-        if sign(xdot(orientation,point-pivot))<0 ang=2pi-ang end
+        if sign(orientation,point-pivot)<0 ang=2pi-ang end
         push!(sorted_points,(ang,point))
     end
     sort!(sorted_points, lt = lessangpoint )
@@ -148,7 +159,7 @@ function Grekhom(points :: AbstractVector{Vector2D{T}}) :: Polygon{T} where T<:R
         push!(stack,sorted_points[i][2])
         j = length(stack)
         while j>=3
-            if sign(xdot(stack[j]-stack[j-1],stack[j-2]-stack[j-1]))<0
+            if sign(stack[j]-stack[j-1],stack[j-2]-stack[j-1])<0
                 stack[j], stack[j-1] = stack[j-1], stack[j]
                 pop!(stack)
             end
@@ -192,3 +203,5 @@ end
 #[(1,1),(2,2),(3,3),(7,7),(-7,20)]
 #[(1.4,3.58),(5.96,2.46),(4.64,1.04),(5,-2),(3.44,0.72),(1.1,-0.7),(4,2)]
 # 6.89
+# y = -5x + 13 : line1 = Segment2D{Real}(Vector2D{Real}(0.,13.),Vector2D{Real}(2.6,0.))
+# y = x + 3 : line2 = Segment2D{Real}(Vector2D{Real}(0.,3.),Vector2D{Real}(-3.,0.))
