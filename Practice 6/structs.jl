@@ -34,9 +34,7 @@ includes(line :: Segment2D{T}, p :: Vector2D{T}) where T = min(line.p1.x,line.p2
 
 function sameside(line :: Segment2D{T}, p1 :: Vector2D{T}, p2 :: Vector2D{T}) :: Bool where T
     origin = line.p2-line.p1
-    dx = abs(line.p2.x-line.p1.x)
-    dy = abs(line.p2.y-line.p1.y)
-    return sign(origin,p1 - Vector2D{Real}(dx,dy)) * sign(origin,p2 -Vector2D{Real}(dx,dy))>=0
+    return sign(origin,p1 - line.p1) * sign(origin,p2 - line.p1)>=0
 end
 
 function sameside(f :: Function, p1 :: Vector2D{T}, p2 :: Vector2D{T}) :: Bool where T
